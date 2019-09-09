@@ -1,6 +1,6 @@
 $(function() {
   let ctx = $("#mw_sales");
-  $.getJSON($SCRIPT_ROOT + "/get_data_points", function(data) {
+  $.getJSON($SCRIPT_ROOT + "/api/getMonthwiseSales", function(data) {
     let mw_data = [];
     for (obj of data) {
       if (obj.year != 2010) {
@@ -43,5 +43,22 @@ $(function() {
     });
     // Show the chart
     lineGraph.render();
+  });
+
+  $.getJSON($SCRIPT_ROOT + "/api/getKPI", function(data) {
+    let kpi = JSON.parse(data);
+    $("#t_count").html(kpi.transaction_count);
+    $("#u_count").html(kpi.user_count);
+    $("#c_count").html(kpi.country_count);
+    $("#s_count").html(kpi.store_count);
+    $("#p_count").html(kpi.product_count);
+
+    console.log(
+      kpi.transaction_count,
+      kpi.user_count,
+      kpi.country_count,
+      kpi.store_count,
+      kpi.product_count
+    );
   });
 });
