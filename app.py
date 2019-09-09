@@ -22,6 +22,8 @@ if __name__ == '__main__':
     # Adding the API endpoints
     api.add_resource(GetAppID, '/getStuff')
     api.add_resource(LoadCSV, '/load_csv/<string:filepath>')
+    api.add_resource(GetMonthwiseSales, '/getMonthwiseSales')
+    api.add_resource(GetKPI, '/getKPI')
 
     # Register the blueprints registered
     app.register_blueprint(rest_api)

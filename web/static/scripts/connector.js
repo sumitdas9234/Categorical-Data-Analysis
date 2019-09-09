@@ -1,14 +1,13 @@
 $(document).ready(function() {
-  $.ajax({
-    crossOrigin: true,
-    url: "http://localhost:4041/api/v1/applications",
-    type: "OPTIONS",
-    contentType: "application/json",
-    dataType: "json",
-    success: function(result) {
-      console.log(result);
+  $.getJSON(
+    "http://localhost:4041/api/v1/applications/?callback=?",
+    {
+      format: "json"
+    },
+    function(data) {
+      console.log(data);
     }
-  });
+  );
 });
 
 $(function() {

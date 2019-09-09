@@ -6,6 +6,7 @@ from flask import Blueprint
 from flask import render_template
 import os
 import requests
+import prettify
 
 # Instantiate the Blueprint named "web" with following config
 web = Blueprint('web', __name__)
@@ -26,9 +27,9 @@ def index():
     return render_template('index.html', title="My Dashboard")
 
 
-@web.route("/new_route")
-def new_route():
-    return "<h1> New Route</h1>"
+@web.route("/full_report")
+def full_report():
+    return render_template('report.html', title="Charts")
 
 @web.app_template_filter('fileManager')
 def fileManager(root_dir):
