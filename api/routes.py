@@ -6,6 +6,7 @@ from flask import Blueprint, jsonify
 from flask_restful import Resource
 from .spark_jobs import SparkJobs
 import json
+from millify import prettify
 
 # Instantiate the Blueprint named "rest_api" with following config
 rest_api = Blueprint('rest_api', __name__)
@@ -29,18 +30,42 @@ class GetMonthwiseSales(Resource):
 
 class GetKPI(Resource):
     def get(self):
-        transactions = sparkSession.loadCSV("C:\\Users\\sumitd.XEBIAINDIA\\Documents\\Official\\Categorical_Analysis\\data\\transactions.csv")
-        users = sparkSession.loadCSV("C:\\Users\\sumitd.XEBIAINDIA\\Documents\\Official\\Categorical_Analysis\\data\\cards.csv")
-        stores = sparkSession.loadCSV("C:\\Users\\sumitd.XEBIAINDIA\\Documents\\Official\\Categorical_Analysis\\data\\stores.csv")
-        country_count = transactions.select('Country').distinct().count()
-
         res  = {}
-        res['transaction_count'] = transactions.count()
-        res['store_count'] = stores.count()
-        res['product_count'] =  transactions.select('Product_Code').distinct().count()
-        res['country_count'] = transactions.select('Country').distinct().count()
-        res['user_count'] = users.count()
+        res['transaction_count'] = prettify(sparkSession.transactions.count())
+        res['store_count'] = prettify(sparkSession.stores.count())
+        res['product_count'] =  prettify(sparkSession.transactions.select('Product_Code').distinct().count())
+        res['country_count'] = prettify(sparkSession.transactions.select('Country').distinct().count())
+        res['user_count'] = prettify(sparkSession.users.count())
         return json.dumps(res)
+
+class GetLoyalty(Resource):
+    def get(self):
+        return sparkSession.get_loyalty()
+
+
+class GetTransactions(Resource):
+    def get(self):
+        return "{hello : world}"
+
+class GetCountries(Resource):
+    def get(self):
+        return "{hello : world}"
+
+class GetStores(Resource):
+    def get(self):
+        return "{hello : world}"
+
+class GetUsers(Resource):
+    def get(self):
+        return sparkSession.get_users()
+
+class GetUsersDistribution(Resource):
+    def get(self):
+        return sparkSession.get_users_distribution()
+
+class GetProducts(Resource):
+    def get(self):
+        return "{hello : world}"
 
 def initSparkSession(appName):
     global sparkSession

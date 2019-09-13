@@ -24,6 +24,13 @@ if __name__ == '__main__':
     api.add_resource(LoadCSV, '/load_csv/<string:filepath>')
     api.add_resource(GetMonthwiseSales, '/getMonthwiseSales')
     api.add_resource(GetKPI, '/getKPI')
+    api.add_resource(GetLoyalty, '/getLoyalty')
+    api.add_resource(GetTransactions, '/transactions')
+    api.add_resource(GetCountries, '/countries')
+    api.add_resource(GetStores, '/stores')
+    api.add_resource(GetUsers, '/users')
+    api.add_resource(GetProducts, '/products')
+    api.add_resource(GetUsersDistribution, '/users/distribution')
 
     # Register the blueprints registered
     app.register_blueprint(rest_api)

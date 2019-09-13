@@ -31,6 +31,26 @@ def index():
 def full_report():
     return render_template('report.html', title="Charts")
 
+@web.route("/transactions")
+def get_transactions():
+    return render_template('transactions.html', title="Transactions")
+
+@web.route("/countries")
+def get_countries():
+    return render_template('countries.html', title="Countries")
+
+@web.route("/users")
+def get_users():
+    return render_template('users.html', title="Users")
+
+@web.route("/products")
+def get_products():
+    return render_template('products.html', title="Product")
+
+@web.route("/stores")
+def get_stores():
+    return render_template('stores.html', title="Stores")
+
 @web.app_template_filter('fileManager')
 def fileManager(root_dir):
     for r, d, f in os.walk(root_dir):
