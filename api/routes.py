@@ -24,8 +24,7 @@ class LoadCSV(Resource):
         # return jsonify(filepath)
 class GetMonthwiseSales(Resource):
     def get(self):
-        df = sparkSession.loadCSV("C:\\Users\\sumitd.XEBIAINDIA\\Documents\\Official\\Categorical_Analysis\\data\\transactions.csv")
-        res = sparkSession.get_monthwise_sales(df)
+        res = sparkSession.get_monthwise_sales(sparkSession.transactions)
         return res
 
 class GetKPI(Resource):
