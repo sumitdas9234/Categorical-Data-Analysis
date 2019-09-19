@@ -6,6 +6,7 @@ from pyspark.sql import SparkSession, Window
 from pyspark.sql.functions import round
 from pyspark.sql.types import *
 import json
+from configparser import SafeConfigParser
 
 SHABIT_CODES = {
         'PR': 'Premium',
@@ -107,7 +108,9 @@ def distinct_periods(weeks):
 
 class SparkJobs():
     def __init__(self, appName):
-        self.spark = SparkSession.builder.config("spark.sql.warehouse.dir","file:///C:/Users/sumitd.XEBIAINDIA/Documents/Official/Apache%20Spark/spark-warehouse").appName(appName).getOrCreate()
+        self.parser = SafeConfigParser()
+        self.parser.read('config.ini')
+        self.spark = SparkSession.builder.config("spark.sql.warehouse.dir",self.parser.get('spark_config', 'warehouse_dir')).appName(appName).getOrCreate()
         # set verbosity to WARNINGS
         self.spark.sparkContext.setLogLevel("WARN")
         self.visit_pattern_udf = Func.udf(flag_visit_pattern1,StringType())
@@ -119,10 +122,10 @@ class SparkJobs():
         self.median_udf = Func.udf(med,FloatType())
         self.max_consec_weeks_udf = Func.udf(max_consec_weeks, IntegerType())
         self.distinct_periods_udf = Func.udf(distinct_periods, IntegerType())
-        self.loyalties = self.spark.read.csv("C:\\Users\\sumitd.XEBIAINDIA\\Documents\\Official\\Categorical_Analysis\\data\\loyalty.csv", inferSchema=True, multiLine=True, header=True)
-        self.transactions = self.spark.read.csv("C:\\Users\\sumitd.XEBIAINDIA\\Documents\\Official\\Categorical_Analysis\\data\\transactions.csv", inferSchema=True, multiLine=True, header=True)
-        self.users = self.spark.read.csv("C:\\Users\\sumitd.XEBIAINDIA\\Documents\\Official\\Categorical_Analysis\\data\\cards.csv", inferSchema=True, multiLine=True, header=True)
-        self.stores = self.spark.read.csv("C:\\Users\\sumitd.XEBIAINDIA\\Documents\\Official\\Categorical_Analysis\\data\\stores.csv", inferSchema=True, multiLine=True, header=True)
+        self.loyalties = self.spark.read.csv(self.parser.get('data_files', 'loyalty'), inferSchema=True, multiLine=True, header=True)
+        self.transactions = self.spark.read.csv(self.parser.get('data_files', 'transactions'), inferSchema=True, multiLine=True, header=True)
+        self.users = self.spark.read.csv(self.parser.get('data_files', 'cards'), inferSchema=True, multiLine=True, header=True)
+        self.stores = self.spark.read.csv(self.parser.get('data_files', 'stores'), inferSchema=True, multiLine=True, header=True)
 
 
     def getAppID(self):
@@ -244,10 +247,23 @@ class SparkJobs():
 
     def get_users_distribution(self):
         res = []
-        for i in self.loyalties.groupBy('shabit').agg(Func.avg('weeks_shopped').alias('weeks_shopped'), Func.avg('max_consec_weeks').alias('max_consec_weeks'), Func.avg('avg_visit').alias('avg_visit'), Func.avg('distinct_periods').alias('distinct_periods')).toJSON().collect():
+        for i in self.loyalties.groupBy('shabit').agg(Func.avg('weeks_shopped').alias('weeks_shopped'), Func.avg('max_consec_weeks').alias('max_consec_weeks'), Func.avg('avg_visit').alias('avg_visit'), Func.avg('distinct_periods').alias('distinct_periods')).orderBy('avg_visit', ascending=False).toJSON().collect():
             res.append(json.loads(i))
 
-        for i in self.loyalties.groupBy('shabit').agg(Func.avg('avg_spend').alias('avg_spend'), Func.avg('med_spend').alias('med_spend'), Func.avg('total_spend').alias('total_spend')).toJSON().collect():
+        for i in self.loyalties.groupBy('shabit').agg(Func.avg('avg_spend').alias('avg_spend'), Func.avg('med_spend').alias('med_spend'), Func.avg('total_spend').alias('total_spend')).orderBy('total_spend', ascending=False).toJSON().collect():
+            res.append(json.loads(i))
+        
+        return res
+
+    def get_top_customers(self):
+        res =[]
+        for i in self.loyalties.filter(Func.col('shabit') == 'PO').orderBy('avg_spend', 'med_spend', ascending=False).select('CustomerID','shabit', 'avg_spend', 'med_spend').limit(5).toJSON().collect():
+            res.append(json.loads(i))
+        for i in self.loyalties.filter(Func.col('shabit') == 'PR').orderBy('avg_spend', 'med_spend', ascending=False).select('CustomerID','shabit', 'avg_spend', 'med_spend').limit(5).toJSON().collect():
+            res.append(json.loads(i))
+        for i in self.loyalties.filter(Func.col('shabit') == 'VL').orderBy('avg_spend', 'med_spend', ascending=False).select('CustomerID','shabit', 'avg_spend', 'med_spend').limit(5).toJSON().collect():
+            res.append(json.loads(i))
+        for i in self.loyalties.filter(Func.col('shabit') == 'UN').orderBy('avg_spend', 'med_spend', ascending=False).select('CustomerID','shabit', 'avg_spend', 'med_spend').limit(5).toJSON().collect():
             res.append(json.loads(i))
         
         return res

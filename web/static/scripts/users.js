@@ -1,54 +1,14 @@
 const habit_desc = {
-  PR: "Premium",
-  VL: "Valuable",
-  PO: "Potential",
-  UN: "Uncommitted",
-  LP: "Lapsing",
-  GO: "GoneAway",
-  "": "Missing"
+  PR: "Platinum",
+  VL: "Diamond",
+  PO: "Gold",
+  UN: "Silver"
 };
-
-function transpose(a) {
-  return Object.keys(a[0]).map(function(c) {
-    return a.map(function(r) {
-      return r[c];
-    });
-  });
-}
-
 // const spend_desc = {
 //   High: '<span class="lnr lnr-chevron-up"></span>',
 //     Low: '<span class="lnr lnr- chevron - down"></span>',
 //   Medium: ''
 // };
-
-$.getJSON(encodeURI($SCRIPT_ROOT + "/api/users"), function(data) {
-  let keys = Object.keys(data[0]);
-
-  $("#table_head").empty();
-  $("#table_body").empty();
-
-  for (key of keys) {
-    $("#table_head").append(
-      ` <th scope="col" class="border-0">
-              ${key.toUpperCase()}
-            </th>`
-    );
-  }
-
-  for (field of data) {
-    $("<tr>")
-      .append(
-        $("<td>").text(field.CustomerID),
-        $("<td>").text("$ " + field.total_spend),
-        $("<td>").text(field.weeks_shopped),
-        $("<td>").text(habit_desc[field.shabit]),
-        $("<td>").text(field.spend_desc),
-        $("<td>").text(field.visit_desc)
-      )
-      .appendTo("#table_body");
-  }
-});
 
 $.getJSON(encodeURI($SCRIPT_ROOT + "/api/users/distribution"), function(
   result
@@ -57,7 +17,6 @@ $.getJSON(encodeURI($SCRIPT_ROOT + "/api/users/distribution"), function(
   let ctx_2 = $("#mw_stats_2");
   let labels = Object.keys(result[0]);
   let data_ = [];
-  console.log(result);
 
   for (let i = 0; i < 5; i++) {
     d = [];
@@ -66,7 +25,6 @@ $.getJSON(encodeURI($SCRIPT_ROOT + "/api/users/distribution"), function(
     }
     data_.push(d);
   }
-
   let barchartdata = {
     labels: [
       habit_desc[result[0].shabit],
@@ -185,6 +143,54 @@ $.getJSON(encodeURI($SCRIPT_ROOT + "/api/users/distribution"), function(
       }
     }
   });
+
   barChart.render();
   barChart_2.render();
+});
+
+$.getJSON(encodeURI($SCRIPT_ROOT + "/api/topCustomers"), function(data) {
+  let po = $("#po");
+  let pr = $("#pr");
+  let vl = $("#vl");
+  let un = $("#un");
+
+  for (let row of data) {
+    if (row.shabit == "PO") {
+      po.append(`<li class="list-group-item d-flex px-3">
+              <span class="text-semibold text-fiord-blue">${
+                row.CustomerID
+              }</span>
+              <span class="ml-auto text-right text-semibold text-reagent-gray"
+                >${"$ " + row.avg_spend}</span
+              >
+            </li>`);
+    } else if (row.shabit == "PR") {
+      pr.append(`<li class="list-group-item d-flex px-3">
+              <span class="text-semibold text-fiord-blue">${
+                row.CustomerID
+              }</span>
+              <span class="ml-auto text-right text-semibold text-reagent-gray"
+                >${"$ " + row.avg_spend}</span
+              >
+            </li>`);
+    } else if (row.shabit == "VL") {
+      vl.append(`<li class="list-group-item d-flex px-3">
+              <span class="text-semibold text-fiord-blue">${
+                row.CustomerID
+              }</span>
+              <span class="ml-auto text-right text-semibold text-reagent-gray"
+                >${"$ " + row.avg_spend}</span
+              >
+            </li>`);
+    } else {
+      un.append(`<li class="list-group-item d-flex px-3">
+              <span class="text-semibold text-fiord-blue">${
+                row.CustomerID
+              }</span>
+              <span class="ml-auto text-right text-semibold text-reagent-gray"
+                >${"$ " + row.avg_spend}</span
+              >
+            </li>`);
+    }
+  }
 });

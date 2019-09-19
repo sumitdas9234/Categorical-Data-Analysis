@@ -67,6 +67,10 @@ class GetProducts(Resource):
     def get(self):
         return "{hello : world}"
 
+class GetTopCustomers(Resource):
+    def get(self):
+        return sparkSession.get_top_customers()
+
 def initSparkSession(appName):
     global sparkSession
     sparkSession = SparkJobs(appName)

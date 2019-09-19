@@ -31,6 +31,7 @@ if __name__ == '__main__':
     api.add_resource(GetUsers, '/users')
     api.add_resource(GetProducts, '/products')
     api.add_resource(GetUsersDistribution, '/users/distribution')
+    api.add_resource(GetTopCustomers, '/topCustomers')
 
     # Register the blueprints registered
     app.register_blueprint(rest_api)
